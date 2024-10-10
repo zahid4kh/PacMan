@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ScoreCount() {
+fun ScoreCount(score: String) {
     Spacer (modifier = Modifier.height(40.dp))
     Row(modifier = Modifier
         .fillMaxWidth()
@@ -24,6 +24,8 @@ fun ScoreCount() {
             border = BorderStroke(3.dp, Color.Red),
             shape = MaterialTheme.shapes.medium ),
         horizontalArrangement = Arrangement.Center){
-        Text(text = "SCORE", fontSize = 35.sp, color = Color.White)
+
+        Text(text = "SCORE: ", fontSize = 35.sp, color = Color.White)
+        Text(text = score, fontSize = 35.sp, color = Color.White)
     }
 }
