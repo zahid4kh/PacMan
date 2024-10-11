@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -46,42 +47,49 @@ fun GameScreen() {
     val player = drawableToImageBitmap(pacman!!) // w = 40, h = 41.6
     val food = drawableToImageBitmap(dollarSign!!) // w = 20, h = 20
 
-    val canvasWidth = LocalConfiguration.current.screenWidthDp - 120
-    val canvasHeight = LocalConfiguration.current.screenHeightDp - 120
+    val canvasWidth = LocalConfiguration.current.screenWidthDp // 384
+    val canvasHeight = LocalConfiguration.current.screenHeightDp // 890
 
-    println("Canvas width = $canvasWidth \nCanvas height = $canvasHeight")
-
-    val foodPosXRange = 30..(canvasWidth)
-    val foodPosYRange = 30..(canvasHeight)
+    val foodPosXRange = 30..(canvasWidth - 120)
+    val foodPosYRange = 30..(canvasHeight - 120)
 
     val currentFoodPosX by remember { mutableStateOf(round(Random.nextInt(foodPosXRange).toDouble()).toInt()) }
     val currentFoodPosY by remember { mutableStateOf(round(Random.nextInt(foodPosYRange).toDouble()).toInt()) }
-    println("FoodPosX = $currentFoodPosX \nFoodPosY = $currentFoodPosY")
+    //println("FoodPosX = $currentFoodPosX \nFoodPosY = $currentFoodPosY")
 
     var currentPlayerPosX by remember { mutableFloatStateOf(0f) }
     var currentPlayerPosY by remember { mutableFloatStateOf(0f) }
+    var currentPlayerAngle by remember {mutableFloatStateOf ( 0F )}
 
     var scoreCounter by remember {mutableStateOf ("")}
 
-    Column(modifier = Modifier.fillMaxSize().background(Color.Black)){
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Black)){
 
         ScoreCount(scoreCounter)
 /////////////////////////////////////////   CANVAS STARTS HERE  ////////////////////////////////
         Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.7f).padding(horizontal = 10.dp, vertical = 10.dp)
             .border(border = BorderStroke(5.dp, Color.White), shape = MaterialTheme.shapes.medium)){
 
-            Canvas(modifier = Modifier.fillMaxSize().clip(shape = MaterialTheme.shapes.large)
-                .padding(vertical = 20.dp, horizontal = 20.dp).background(Color.Blue),
+            Canvas(modifier = Modifier
+                .fillMaxSize()
+                .clip(shape = MaterialTheme.shapes.large)
+                .padding(vertical = 20.dp, horizontal = 20.dp)
+                .background(Color.Blue),
                 onDraw = {
                     drawImage(
                         image = food,
                         topLeft = Offset(currentFoodPosX.toFloat(), currentFoodPosY.toFloat()
                         )
                     )
-                    drawImage(
-                        image = player,
-                        topLeft = Offset(currentPlayerPosX, currentPlayerPosY)
-                    )
+                    rotate(degrees = currentPlayerAngle, pivot = Offset((player.height/2).toFloat(), (player.width/2).toFloat())){
+                        drawImage(
+                            image = player,
+                            topLeft = Offset(currentPlayerPosX, currentPlayerPosY)
+                        )
+                    }
+
                 }
             )
         }
@@ -92,10 +100,10 @@ fun GameScreen() {
         var goRight by rememberSaveable {mutableStateOf(false)}
         val movingSpeed = 5f
         when (true) {
-            goUp -> currentPlayerPosY -= movingSpeed
-            goDown -> currentPlayerPosY += movingSpeed
-            goLeft -> currentPlayerPosX -= movingSpeed
-            goRight -> currentPlayerPosX += movingSpeed
+            goUp ->  currentPlayerPosY -= movingSpeed
+            goDown ->  currentPlayerPosY += movingSpeed
+            goLeft ->  currentPlayerPosX -= movingSpeed
+            goRight -> { currentPlayerPosX += movingSpeed }
             else -> null
         }
 ////////////////////////////////////  BUTTONS START HERE    //////////////////////
@@ -106,11 +114,15 @@ fun GameScreen() {
             val arrowLeft = R.drawable.arrow_left
             val buttonSize = 90.dp
 
-            Column(Modifier
-                .fillMaxSize()
-                .border(border = BorderStroke(5.dp, Color.Green), shape = MaterialTheme.shapes.large )
-                .clip(shape = MaterialTheme.shapes.large)
-                .background(Color.White),
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .border(
+                        border = BorderStroke(5.dp, Color.Green),
+                        shape = MaterialTheme.shapes.large
+                    )
+                    .clip(shape = MaterialTheme.shapes.large)
+                    .background(Color.White),
                 verticalArrangement = Arrangement.Center){
 
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
@@ -147,4 +159,4 @@ fun GameScreen() {
     }
 }
 
-// height = 1632, width = 1052 -> canvas size
+//Canvas size = [912, 1520] in Int
