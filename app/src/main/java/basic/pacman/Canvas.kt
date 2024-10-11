@@ -14,6 +14,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 
 @Composable
@@ -25,18 +27,23 @@ fun Player(){
     val dollarSign = ContextCompat.getDrawable(context, R.drawable.food)
     val player = drawableToImageBitmap(pacman!!) // w = 40, h = 41.6
     val food = drawableToImageBitmap(dollarSign!!) // w = 20, h = 20
-
     Canvas(modifier = Modifier.fillMaxSize()
         .clip(shape = MaterialTheme.shapes.large).padding(vertical = 20.dp, horizontal = 20.dp)
         .background(Color.Blue),
         onDraw = {
-            val canvasWidth = size.width - 50
-            val canvasHeight = size.height
+            val canvasWidth = size.width - 120
+            val canvasHeight = size.height - 120
+
+            val foodPosX = 0..canvasWidth.toInt()
+            val foodPosY = 0..canvasHeight.toInt()
+
             drawImage(
                 image = food,
-                topLeft = Offset(canvasWidth, canvasHeight)
+                topLeft = Offset(Random.nextInt(foodPosX).toFloat(), canvasHeight)
             )
-            drawImage(image = player, topLeft = Offset(canvasWidth, 0f))
+            drawImage(
+                image = player,
+                topLeft = Offset(canvasWidth, 0f))
         }
     )
 }
