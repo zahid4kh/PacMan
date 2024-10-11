@@ -4,60 +4,41 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import kotlin.math.round
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 @Composable
 @Preview
 fun GameScreen() {
-    var scoreCounter by remember {mutableStateOf ("")}
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.Black)){
-
-        ScoreCount(scoreCounter)
-
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.7f)
-            .padding(horizontal = 10.dp, vertical = 10.dp)
-            .border(
-                border = BorderStroke(5.dp, Color.White),
-                shape = MaterialTheme.shapes.medium
-            )
-        ){
-            Player()
-        }
-
-        Column(modifier = Modifier
-            .fillMaxWidth()){
-            Buttons()
-        }
-
-    }
-
-
-}
-
-@Composable
-fun Player(){
     val context = LocalContext.current
 
     val pacman = ContextCompat.getDrawable(context, R.drawable.pacman)
@@ -65,22 +46,105 @@ fun Player(){
     val player = drawableToImageBitmap(pacman!!) // w = 40, h = 41.6
     val food = drawableToImageBitmap(dollarSign!!) // w = 20, h = 20
 
-    Canvas(modifier = Modifier.fillMaxSize()
-        .clip(shape = MaterialTheme.shapes.large).padding(vertical = 20.dp, horizontal = 20.dp)
-        .background(Color.Blue),
-        onDraw = {
-            val canvasWidth = size.width - 50
-            val canvasHeight = size.height
-            drawImage(
-                image = food,
-                topLeft = Offset(canvasWidth, canvasHeight)
+    val canvasWidth = LocalConfiguration.current.screenWidthDp - 120
+    val canvasHeight = LocalConfiguration.current.screenHeightDp - 120
+
+    println("Canvas width = $canvasWidth \nCanvas height = $canvasHeight")
+
+    val foodPosXRange = 30..(canvasWidth)
+    val foodPosYRange = 30..(canvasHeight)
+
+    val currentFoodPosX by remember { mutableStateOf(round(Random.nextInt(foodPosXRange).toDouble()).toInt()) }
+    val currentFoodPosY by remember { mutableStateOf(round(Random.nextInt(foodPosYRange).toDouble()).toInt()) }
+    println("FoodPosX = $currentFoodPosX \nFoodPosY = $currentFoodPosY")
+
+    var currentPlayerPosX by remember { mutableFloatStateOf(0f) }
+    var currentPlayerPosY by remember { mutableFloatStateOf(0f) }
+
+    var scoreCounter by remember {mutableStateOf ("")}
+
+    Column(modifier = Modifier.fillMaxSize().background(Color.Black)){
+
+        ScoreCount(scoreCounter)
+/////////////////////////////////////////   CANVAS STARTS HERE  ////////////////////////////////
+        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.7f).padding(horizontal = 10.dp, vertical = 10.dp)
+            .border(border = BorderStroke(5.dp, Color.White), shape = MaterialTheme.shapes.medium)){
+
+            Canvas(modifier = Modifier.fillMaxSize().clip(shape = MaterialTheme.shapes.large)
+                .padding(vertical = 20.dp, horizontal = 20.dp).background(Color.Blue),
+                onDraw = {
+                    drawImage(
+                        image = food,
+                        topLeft = Offset(currentFoodPosX.toFloat(), currentFoodPosY.toFloat()
+                        )
+                    )
+                    drawImage(
+                        image = player,
+                        topLeft = Offset(currentPlayerPosX, currentPlayerPosY)
+                    )
+                }
             )
-            drawImage(image = player, topLeft = Offset(canvasWidth, 0f))
-        })
+        }
+////////////////////////////////////    CANVAS ENDS HERE    ///////////////////////////////////
+        var goUp by rememberSaveable {mutableStateOf(false)}
+        var goDown by rememberSaveable {mutableStateOf(false)}
+        var goLeft by rememberSaveable {mutableStateOf(false)}
+        var goRight by rememberSaveable {mutableStateOf(false)}
+        val movingSpeed = 5f
+        when (true) {
+            goUp -> currentPlayerPosY -= movingSpeed
+            goDown -> currentPlayerPosY += movingSpeed
+            goLeft -> currentPlayerPosX -= movingSpeed
+            goRight -> currentPlayerPosX += movingSpeed
+            else -> null
+        }
+////////////////////////////////////  BUTTONS START HERE    //////////////////////
+        Column(modifier = Modifier.fillMaxWidth()){
+            val arrowUp = R.drawable.arrow_up
+            val arrowDown = R.drawable.arrow_down
+            val arrowRight = R.drawable.arrow_right
+            val arrowLeft = R.drawable.arrow_left
+            val buttonSize = 90.dp
 
+            Column(Modifier
+                .fillMaxSize()
+                .border(border = BorderStroke(5.dp, Color.Green), shape = MaterialTheme.shapes.large )
+                .clip(shape = MaterialTheme.shapes.large)
+                .background(Color.White),
+                verticalArrangement = Arrangement.Center){
 
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+                    IconButton(onClick = {goUp = true; goDown = false; goRight = false; goLeft = false}, // arrow up
+                        Modifier.size(buttonSize)) {
+                        Icon(painter = painterResource(arrowUp) , contentDescription = "arrow up",
+                            Modifier.size(buttonSize))
+                    }
+                }
 
+                Row(Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly){
+                    IconButton(onClick = {goUp = false; goDown = false; goRight = false; goLeft = true}, // arrow left
+                        Modifier.size(buttonSize)) {
+                        Icon(painter = painterResource(arrowLeft) , contentDescription = "arrow left",
+                            Modifier.size(buttonSize))
+                    }
 
+                    IconButton(onClick = {goUp = false; goDown = true; goRight = false; goLeft = false}, // arrow down
+                        Modifier.size(buttonSize)) {
+                        Icon(painter = painterResource(arrowDown) , contentDescription = "arrow down",
+                            Modifier.size(buttonSize))
+                    }
+
+                    IconButton(onClick = {goUp = false; goDown = false; goRight = true; goLeft = false}, // arrow right
+                        Modifier.size(buttonSize)) {
+                        Icon(painter = painterResource(arrowRight) , contentDescription = "arrow right",
+                            Modifier.size(buttonSize))
+                    }
+                }
+
+            }
+        } ////////////////////////////////////  BUTTONS END HERE    //////////////////////
+    }
 }
 
 // height = 1632, width = 1052 -> canvas size
