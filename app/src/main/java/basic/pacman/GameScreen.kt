@@ -48,38 +48,33 @@ fun GameScreen() {
     val player = drawableToImageBitmap(pacman!!) // w = 40, h = 41.6
     val food = drawableToImageBitmap(dollarSign!!) // w = 20, h = 20
 
-    val canvasWidth = LocalConfiguration.current.screenWidthDp // 384
-    val canvasHeight = LocalConfiguration.current.screenHeightDp // 890
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp // 384
+    val screenHeightDp = LocalConfiguration.current.screenHeightDp // 890
 
-    val foodPosXRange = 30..(canvasWidth - 120)
-    val foodPosYRange = 30..(canvasHeight - 120)
+    val foodPosXRange = 30..(screenWidthDp - 120)
+    val foodPosYRange = 30..(screenHeightDp - 120)
 
     val currentFoodPosX by remember { mutableStateOf(round(Random.nextInt(foodPosXRange).toDouble()).toInt()) }
     val currentFoodPosY by remember { mutableStateOf(round(Random.nextInt(foodPosYRange).toDouble()).toInt()) }
     //println("FoodPosX = $currentFoodPosX \nFoodPosY = $currentFoodPosY")
 
-    var currentPlayerPosX by remember { mutableFloatStateOf(0f) }
-    var currentPlayerPosY by remember { mutableFloatStateOf(0f) }
+    var currentPlayerPosX by remember { mutableFloatStateOf(15f) }
+    var currentPlayerPosY by remember { mutableFloatStateOf(15f) }
     var currentPlayerAngle by remember {mutableFloatStateOf ( 0F )}
 
     val scoreCounter by remember {mutableStateOf ("")}
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.Black)){
+    Column(modifier = Modifier.fillMaxSize().background(Color.Black)){
 
         ScoreCount(scoreCounter)
 /////////////////////////////////////////   CANVAS STARTS HERE  ////////////////////////////////
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.7f)
-            .padding(horizontal = 10.dp, vertical = 10.dp)
+        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.7f).padding(horizontal = 10.dp, vertical = 10.dp)
             .border(border = BorderStroke(5.dp, Color.White), shape = MaterialTheme.shapes.medium)){
 
             Canvas(modifier = Modifier
                 .fillMaxSize()
                 .clip(shape = MaterialTheme.shapes.large)
-                .padding(vertical = 20.dp, horizontal = 20.dp)
+                //.padding(vertical = 20.dp, horizontal = 20.dp)
                 .background(Color.Blue),
                 onDraw = {
                     println("Canvas Size = ${listOf(size.toDpSize())}\nPlayer in PX = ${listOf(currentPlayerPosX, currentPlayerPosY)}")
@@ -102,7 +97,7 @@ fun GameScreen() {
         val playerInDpX = (currentPlayerPosX * 160) / screenDensityDpi
         val playerInDpY = (currentPlayerPosY * 160) / screenDensityDpi
         println("Player in DP = ${listOf(playerInDpX, playerInDpY)}")
-        println("Screen in DP = ${listOf(canvasWidth, canvasHeight)}")
+        println("Screen in DP = ${listOf(screenWidthDp, screenHeightDp)}")
         var goUp by rememberSaveable {mutableStateOf(false)}
         var goDown by rememberSaveable {mutableStateOf(false)}
         var goLeft by rememberSaveable {mutableStateOf(false)}
@@ -112,14 +107,13 @@ fun GameScreen() {
         val spawnPosY = -10f
         when (true) {
             goUp ->  currentPlayerPosY -= movingSpeed
-            goDown -> { currentPlayerPosY += movingSpeed; if (playerInDpY > canvasHeight) currentPlayerPosY = spawnPosY }
+            goDown -> { currentPlayerPosY += movingSpeed; if (playerInDpY > screenHeightDp) currentPlayerPosY = spawnPosY }
             goLeft -> { currentPlayerPosX -= movingSpeed }
-            goRight -> { currentPlayerPosX += movingSpeed; if (playerInDpX > canvasWidth) currentPlayerPosX = spawnPosX }
+            goRight -> { currentPlayerPosX += movingSpeed; if (playerInDpX > screenWidthDp) currentPlayerPosX = spawnPosX }
             else -> null
         }
 ////////////////////////////////////  BUTTONS START HERE    //////////////////////
         Column(modifier = Modifier.fillMaxWidth()){
-
             Column(
                 Modifier
                     .fillMaxSize()
@@ -161,7 +155,8 @@ fun GameScreen() {
                 }
 
             }
-        } ////////////////////////////////////  BUTTONS END HERE    //////////////////////
+        }
+    ////////////////////////////////////  BUTTONS END HERE    //////////////////////
     }
 }
 
