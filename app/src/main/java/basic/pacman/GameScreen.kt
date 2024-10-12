@@ -43,6 +43,16 @@ fun GameScreen() {
     val context = LocalContext.current
     val screenDensityDpi = remember { getScreenDensityDpi(context) }
 
+    fun dpToPx(width: Float, height: Float): Pair<Float, Float>{
+        val widthInPx = (width * screenDensityDpi) / 160
+        val heightInPx = (height * screenDensityDpi) / 160
+        val sizeInPx = Pair(widthInPx, heightInPx)
+        return sizeInPx
+    }
+
+    val pacmanInPx = dpToPx(40f, 41.6f)
+    val foodInPx = dpToPx(20f, 20f)
+
     val pacman = ContextCompat.getDrawable(context, R.drawable.pacman)
     val dollarSign = ContextCompat.getDrawable(context, R.drawable.food)
     val player = drawableToImageBitmap(pacman!!) // w = 40, h = 41.6
@@ -51,30 +61,41 @@ fun GameScreen() {
     val screenWidthDp = LocalConfiguration.current.screenWidthDp // 384
     val screenHeightDp = LocalConfiguration.current.screenHeightDp // 890
 
-    val foodPosXRange = 30..(screenWidthDp - 120)
-    val foodPosYRange = 30..(screenHeightDp - 120)
+    val screenSizePx = dpToPx(screenWidthDp.toFloat(), screenHeightDp.toFloat())
+    println("Screen in PX = $screenSizePx")
+
+    val foodPosXRange = 0..(screenWidthDp - 120)
+    val foodPosYRange = 0..(screenHeightDp - 120)
 
     val currentFoodPosX by remember { mutableStateOf(round(Random.nextInt(foodPosXRange).toDouble()).toInt()) }
     val currentFoodPosY by remember { mutableStateOf(round(Random.nextInt(foodPosYRange).toDouble()).toInt()) }
-    //println("FoodPosX = $currentFoodPosX \nFoodPosY = $currentFoodPosY")
 
     var currentPlayerPosX by remember { mutableFloatStateOf(15f) }
     var currentPlayerPosY by remember { mutableFloatStateOf(15f) }
     var currentPlayerAngle by remember {mutableFloatStateOf ( 0F )}
 
     val scoreCounter by remember {mutableStateOf ("")}
-    val canvasModifier = Modifier.fillMaxSize().clip(shape = MaterialTheme.shapes.large).background(Color.Blue)
+    val canvasModifier = Modifier
+        .fillMaxSize()
+        .clip(shape = MaterialTheme.shapes.large)
+        .background(Color.Blue)
 
-    Column(modifier = Modifier.fillMaxSize().background(Color.Black)){
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Black)){
 
         ScoreCount(scoreCounter)
 /////////////////////////////////////////   CANVAS STARTS HERE  ////////////////////////////////
-        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.7f).padding(horizontal = 10.dp, vertical = 10.dp)
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.7f)
+            .padding(horizontal = 10.dp, vertical = 10.dp)
             .border(border = BorderStroke(5.dp, Color.White), shape = MaterialTheme.shapes.medium)){
 
             Canvas(modifier = canvasModifier,
                 onDraw = {
-                    println("Canvas Size = ${listOf(size)}\nPlayer in PX = ${listOf(currentPlayerPosX, currentPlayerPosY)}")
+                    val canvasWidth = size.width
+                    val canvasHeight = size.height // TODO(update movement inside onDraw scope)
                     drawImage(
                         image = food,
                         topLeft = Offset(currentFoodPosX.toFloat(), currentFoodPosY.toFloat()
@@ -91,22 +112,16 @@ fun GameScreen() {
             )
         }
 ////////////////////////////////////    CANVAS ENDS HERE    ///////////////////////////////////
-        val playerInDpX = (currentPlayerPosX * 160) / screenDensityDpi
-        val playerInDpY = (currentPlayerPosY * 160) / screenDensityDpi
-        println("Player in DP = ${listOf(playerInDpX, playerInDpY)}")
-        println("Screen in DP = ${listOf(screenWidthDp, screenHeightDp)}")
         var goUp by rememberSaveable {mutableStateOf(false)}
         var goDown by rememberSaveable {mutableStateOf(false)}
         var goLeft by rememberSaveable {mutableStateOf(false)}
         var goRight by rememberSaveable {mutableStateOf(false)}
-        val movingSpeed = 5f
-        val spawnPosX = -50f
-        val spawnPosY = -10f
+
         when (true) {
             goUp ->  currentPlayerPosY -= movingSpeed
-            goDown -> { currentPlayerPosY += movingSpeed; if (playerInDpY > screenHeightDp) currentPlayerPosY = spawnPosY }
+            goDown -> { currentPlayerPosY += movingSpeed;if (currentPlayerPosY > screenSizePx.second) currentPlayerPosY = spawnPosY }
             goLeft -> { currentPlayerPosX -= movingSpeed }
-            goRight -> { currentPlayerPosX += movingSpeed; if (playerInDpX > screenWidthDp) currentPlayerPosX = spawnPosX }
+            goRight -> { currentPlayerPosX += movingSpeed;if (currentPlayerPosX > screenSizePx.first) currentPlayerPosX = spawnPosX }
             else -> null
         }
 ////////////////////////////////////  BUTTONS START HERE    //////////////////////
