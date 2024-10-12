@@ -48,16 +48,13 @@ fun GameScreen() {
         return sizeInPx
     }
 
-//    val pacmanInPx = dpToPx(40f, 41.6f)
-//    val foodInPx = dpToPx(20f, 20f)
+    val pacmanInPx = dpToPx(40f, 41.6f)
+    val foodInPx = dpToPx(20f, 20f)
 
     val pacman = ContextCompat.getDrawable(context, R.drawable.pacman)
     val dollarSign = ContextCompat.getDrawable(context, R.drawable.food)
     val player = drawableToImageBitmap(pacman!!) // w = 40, h = 41.6
     val food = drawableToImageBitmap(dollarSign!!) // w = 20, h = 20
-
-//    val screenWidthDp = LocalConfiguration.current.screenWidthDp // 384
-//    val screenHeightDp = LocalConfiguration.current.screenHeightDp // 890
 
     var currentFoodPosX by remember { mutableFloatStateOf(300f) }
     var currentFoodPosY by remember { mutableFloatStateOf(900f) }
@@ -86,7 +83,6 @@ fun GameScreen() {
                     val canvasWidth = size.width
                     val canvasHeight = size.height
 
-//                    val foodXRange = floatRange(0f, (canvasWidth - pacmanInPx.first), 5f)
                     val foodXRange = 0..(canvasWidth - 120).toInt()
                     val foodYRange = 0..(canvasHeight - 120).toInt()
 
@@ -104,12 +100,14 @@ fun GameScreen() {
                     }
                     println("Player position = ${Pair(currentPlayerPosX, currentPlayerPosY)}")
                     println("Food position = ${Pair(currentFoodPosX, currentFoodPosY)}")
+                    println("Player dimensions = $pacmanInPx in PX")
+                    println("Food dimensions = $foodInPx in PX")
 
                     drawImage(
                         image = food,
                         topLeft = Offset(currentFoodPosX, currentFoodPosY)
                     )
-                    rotate(degrees = currentPlayerAngle, pivot = Offset((player.height/2).toFloat(), (player.width/2).toFloat())){
+                    rotate(degrees = currentPlayerAngle, pivot = Offset((pacmanInPx.first/2), (pacmanInPx.second/2))){
                         drawImage(
                             image = player,
                             topLeft = Offset(currentPlayerPosX, currentPlayerPosY)
