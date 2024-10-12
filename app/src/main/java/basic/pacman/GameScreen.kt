@@ -119,11 +119,6 @@ fun GameScreen() {
         }
 ////////////////////////////////////  BUTTONS START HERE    //////////////////////
         Column(modifier = Modifier.fillMaxWidth()){
-            val arrowUp = R.drawable.arrow_up
-            val arrowDown = R.drawable.arrow_down
-            val arrowRight = R.drawable.arrow_right
-            val arrowLeft = R.drawable.arrow_left
-            val buttonSize = 90.dp
 
             Column(
                 Modifier
