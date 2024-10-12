@@ -27,13 +27,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import kotlin.math.round
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -50,40 +48,31 @@ fun GameScreen() {
         return sizeInPx
     }
 
-    val pacmanInPx = dpToPx(40f, 41.6f)
-    val foodInPx = dpToPx(20f, 20f)
+//    val pacmanInPx = dpToPx(40f, 41.6f)
+//    val foodInPx = dpToPx(20f, 20f)
 
     val pacman = ContextCompat.getDrawable(context, R.drawable.pacman)
     val dollarSign = ContextCompat.getDrawable(context, R.drawable.food)
     val player = drawableToImageBitmap(pacman!!) // w = 40, h = 41.6
     val food = drawableToImageBitmap(dollarSign!!) // w = 20, h = 20
 
-    val screenWidthDp = LocalConfiguration.current.screenWidthDp // 384
-    val screenHeightDp = LocalConfiguration.current.screenHeightDp // 890
+//    val screenWidthDp = LocalConfiguration.current.screenWidthDp // 384
+//    val screenHeightDp = LocalConfiguration.current.screenHeightDp // 890
 
-    val screenSizePx = dpToPx(screenWidthDp.toFloat(), screenHeightDp.toFloat())
-    println("Screen in PX = $screenSizePx")
-
-    val foodPosXRange = 0..(screenWidthDp - 120)
-    val foodPosYRange = 0..(screenHeightDp - 120)
-
-    val currentFoodPosX by remember { mutableStateOf(round(Random.nextInt(foodPosXRange).toDouble()).toInt()) }
-    val currentFoodPosY by remember { mutableStateOf(round(Random.nextInt(foodPosYRange).toDouble()).toInt()) }
+    var currentFoodPosX by remember { mutableFloatStateOf(300f) }
+    var currentFoodPosY by remember { mutableFloatStateOf(900f) }
 
     var currentPlayerPosX by remember { mutableFloatStateOf(15f) }
     var currentPlayerPosY by remember { mutableFloatStateOf(15f) }
     var currentPlayerAngle by remember {mutableFloatStateOf ( 0F )}
-
     val scoreCounter by remember {mutableStateOf ("")}
+
     val canvasModifier = Modifier
         .fillMaxSize()
         .clip(shape = MaterialTheme.shapes.large)
         .background(Color.Blue)
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.Black)){
-
+    Column(modifier = Modifier.fillMaxSize().background(Color.Black)){
         ScoreCount(scoreCounter)
 /////////////////////////////////////////   CANVAS STARTS HERE  ////////////////////////////////
         Column(modifier = Modifier
@@ -95,11 +84,30 @@ fun GameScreen() {
             Canvas(modifier = canvasModifier,
                 onDraw = {
                     val canvasWidth = size.width
-                    val canvasHeight = size.height // TODO(update movement inside onDraw scope)
+                    val canvasHeight = size.height
+
+//                    val foodXRange = floatRange(0f, (canvasWidth - pacmanInPx.first), 5f)
+                    val foodXRange = 0..(canvasWidth - 120).toInt()
+                    val foodYRange = 0..(canvasHeight - 120).toInt()
+
+                    val newFoodX = Random.nextInt(foodXRange)
+                    val newFoodY = Random.nextInt(foodYRange)
+
+                    if (currentPlayerPosX.toInt() == newFoodX) currentFoodPosX = Random.nextInt(foodXRange).toFloat()
+                    if (currentPlayerPosY.toInt() == newFoodY) currentFoodPosY = Random.nextInt(foodYRange).toFloat()
+
+                    if (currentPlayerPosY > canvasHeight) {
+                        currentPlayerPosY = spawnPosY
+                    }
+                    if (currentPlayerPosX > canvasWidth) {
+                        currentPlayerPosX = spawnPosX
+                    }
+                    println("Player position = ${Pair(currentPlayerPosX, currentPlayerPosY)}")
+                    println("Food position = ${Pair(currentFoodPosX, currentFoodPosY)}")
+
                     drawImage(
                         image = food,
-                        topLeft = Offset(currentFoodPosX.toFloat(), currentFoodPosY.toFloat()
-                        )
+                        topLeft = Offset(currentFoodPosX, currentFoodPosY)
                     )
                     rotate(degrees = currentPlayerAngle, pivot = Offset((player.height/2).toFloat(), (player.width/2).toFloat())){
                         drawImage(
@@ -119,11 +127,14 @@ fun GameScreen() {
 
         when (true) {
             goUp ->  currentPlayerPosY -= movingSpeed
-            goDown -> { currentPlayerPosY += movingSpeed;if (currentPlayerPosY > screenSizePx.second) currentPlayerPosY = spawnPosY }
-            goLeft -> { currentPlayerPosX -= movingSpeed }
-            goRight -> { currentPlayerPosX += movingSpeed;if (currentPlayerPosX > screenSizePx.first) currentPlayerPosX = spawnPosX }
+            goDown ->  currentPlayerPosY += movingSpeed
+            goLeft -> currentPlayerPosX -= movingSpeed
+            goRight -> currentPlayerPosX += movingSpeed
             else -> null
         }
+
+
+
 ////////////////////////////////////  BUTTONS START HERE    //////////////////////
         Column(modifier = Modifier.fillMaxWidth()){
             Column(
