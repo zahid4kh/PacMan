@@ -63,6 +63,7 @@ fun GameScreen() {
     var currentPlayerAngle by remember {mutableFloatStateOf ( 0F )}
 
     val scoreCounter by remember {mutableStateOf ("")}
+    val canvasModifier = Modifier.fillMaxSize().clip(shape = MaterialTheme.shapes.large).background(Color.Blue)
 
     Column(modifier = Modifier.fillMaxSize().background(Color.Black)){
 
@@ -71,13 +72,9 @@ fun GameScreen() {
         Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.7f).padding(horizontal = 10.dp, vertical = 10.dp)
             .border(border = BorderStroke(5.dp, Color.White), shape = MaterialTheme.shapes.medium)){
 
-            Canvas(modifier = Modifier
-                .fillMaxSize()
-                .clip(shape = MaterialTheme.shapes.large)
-                //.padding(vertical = 20.dp, horizontal = 20.dp)
-                .background(Color.Blue),
+            Canvas(modifier = canvasModifier,
                 onDraw = {
-                    println("Canvas Size = ${listOf(size.toDpSize())}\nPlayer in PX = ${listOf(currentPlayerPosX, currentPlayerPosY)}")
+                    println("Canvas Size = ${listOf(size)}\nPlayer in PX = ${listOf(currentPlayerPosX, currentPlayerPosY)}")
                     drawImage(
                         image = food,
                         topLeft = Offset(currentFoodPosX.toFloat(), currentFoodPosY.toFloat()
