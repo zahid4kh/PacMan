@@ -41,6 +41,7 @@ import kotlin.random.nextInt
 @Preview
 fun GameScreen() {
     val context = LocalContext.current
+    val screenDensityDpi = remember { getScreenDensityDpi(context) }
 
     val pacman = ContextCompat.getDrawable(context, R.drawable.pacman)
     val dollarSign = ContextCompat.getDrawable(context, R.drawable.food)
@@ -61,7 +62,7 @@ fun GameScreen() {
     var currentPlayerPosY by remember { mutableFloatStateOf(0f) }
     var currentPlayerAngle by remember {mutableFloatStateOf ( 0F )}
 
-    var scoreCounter by remember {mutableStateOf ("")}
+    val scoreCounter by remember {mutableStateOf ("")}
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -69,7 +70,10 @@ fun GameScreen() {
 
         ScoreCount(scoreCounter)
 /////////////////////////////////////////   CANVAS STARTS HERE  ////////////////////////////////
-        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.7f).padding(horizontal = 10.dp, vertical = 10.dp)
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.7f)
+            .padding(horizontal = 10.dp, vertical = 10.dp)
             .border(border = BorderStroke(5.dp, Color.White), shape = MaterialTheme.shapes.medium)){
 
             Canvas(modifier = Modifier
@@ -78,6 +82,7 @@ fun GameScreen() {
                 .padding(vertical = 20.dp, horizontal = 20.dp)
                 .background(Color.Blue),
                 onDraw = {
+                    println("Canvas Size = ${listOf(size.toDpSize())}\nPlayer in PX = ${listOf(currentPlayerPosX, currentPlayerPosY)}")
                     drawImage(
                         image = food,
                         topLeft = Offset(currentFoodPosX.toFloat(), currentFoodPosY.toFloat()
@@ -94,16 +99,22 @@ fun GameScreen() {
             )
         }
 ////////////////////////////////////    CANVAS ENDS HERE    ///////////////////////////////////
+        val playerInDpX = (currentPlayerPosX * 160) / screenDensityDpi
+        val playerInDpY = (currentPlayerPosY * 160) / screenDensityDpi
+        println("Player in DP = ${listOf(playerInDpX, playerInDpY)}")
+        println("Screen in DP = ${listOf(canvasWidth, canvasHeight)}")
         var goUp by rememberSaveable {mutableStateOf(false)}
         var goDown by rememberSaveable {mutableStateOf(false)}
         var goLeft by rememberSaveable {mutableStateOf(false)}
         var goRight by rememberSaveable {mutableStateOf(false)}
         val movingSpeed = 5f
+        val spawnPosX = -50f
+        val spawnPosY = -10f
         when (true) {
             goUp ->  currentPlayerPosY -= movingSpeed
-            goDown ->  currentPlayerPosY += movingSpeed
-            goLeft ->  currentPlayerPosX -= movingSpeed
-            goRight -> { currentPlayerPosX += movingSpeed }
+            goDown -> { currentPlayerPosY += movingSpeed; if (playerInDpY > canvasHeight) currentPlayerPosY = spawnPosY }
+            goLeft -> { currentPlayerPosX -= movingSpeed }
+            goRight -> { currentPlayerPosX += movingSpeed; if (playerInDpX > canvasWidth) currentPlayerPosX = spawnPosX }
             else -> null
         }
 ////////////////////////////////////  BUTTONS START HERE    //////////////////////
