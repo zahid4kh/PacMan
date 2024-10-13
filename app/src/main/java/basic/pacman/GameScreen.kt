@@ -114,7 +114,7 @@ fun GameScreen() {
                         image = food,
                         topLeft = Offset(currentFoodPosX, currentFoodPosY)
                     )
-                    // TODO (rotation)
+
                     rotate(degrees = currentPlayerAngle, pivot = Offset((playerCenter.first.toFloat()), (playerCenter.second.toFloat()))){
                         scale (scaleX = playerScaleX, scaleY = 1f, pivot = Offset((playerCenter.first.toFloat()), (playerCenter.second.toFloat()))){
                             drawImage(
