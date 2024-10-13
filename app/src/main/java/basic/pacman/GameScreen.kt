@@ -77,7 +77,10 @@ fun GameScreen() {
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.Black)){
-        ScoreCount(scoreCounter.toString())
+        
+        var canvasWidth by remember { mutableFloatStateOf(0f) }
+        var canvasHeight by remember { mutableFloatStateOf(0f) }
+        ScoreCount(scoreCounter.toString(), canvasWidth.toInt(), canvasHeight.toInt())
 /////////////////////////////////////////   CANVAS STARTS HERE  ////////////////////////////////
         Column(modifier = Modifier
             .fillMaxWidth()
@@ -87,8 +90,8 @@ fun GameScreen() {
 
             Canvas(modifier = canvasModifier,
                 onDraw = {
-                    val canvasWidth = size.width
-                    val canvasHeight = size.height
+                    canvasWidth = size.width
+                    canvasHeight = size.height
 
                     val foodXRange = (0..(canvasWidth - 120).toInt() step 2).toList()
                     val foodYRange = 0..(canvasHeight - 120).toInt()
@@ -105,6 +108,7 @@ fun GameScreen() {
                     if (currentPlayerPosX > canvasWidth) {
                         currentPlayerPosX = spawnPosX
                     }
+
 //                    println("Player position = ${Pair(currentPlayerPosX, currentPlayerPosY)}")
 //                    println("Food position = ${Pair(currentFoodPosX, currentFoodPosY)}")
 //                    println("Player Center = $playerCenter in PX")
