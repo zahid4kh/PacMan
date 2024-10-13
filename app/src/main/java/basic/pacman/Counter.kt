@@ -31,6 +31,6 @@ fun ScoreCount(score: String) {
         horizontalArrangement = Arrangement.Center){
 
         Text(text = "SCORE: ", fontSize = 35.sp, color = Color.White)
-        Text(text = screenDensityDpi.toString(), fontSize = 35.sp, color = Color.White)
+        Text(text = score, fontSize = 35.sp, color = Color.White)
     }
 }

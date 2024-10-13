@@ -8,7 +8,9 @@ val arrowRight = R.drawable.arrow_right
 val arrowLeft = R.drawable.arrow_left
 val buttonSize = 90.dp
 
-const val movingSpeed = 1f
+const val movingSpeed = 2f
+const val movingSpeedX = 3f
+const val movingSpeedY = 2.375f
 const val spawnPosX = -50f
 const val spawnPosY = -50f
 

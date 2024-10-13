@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -49,28 +50,30 @@ fun GameScreen() {
     }
 
     val pacmanInPx = dpToPx(40f, 41.6f)
-    val foodInPx = dpToPx(20f, 20f)
+//    val foodInPx = dpToPx(20f, 20f)
 
     val pacman = ContextCompat.getDrawable(context, R.drawable.pacman)
     val dollarSign = ContextCompat.getDrawable(context, R.drawable.food)
     val player = drawableToImageBitmap(pacman!!) // w = 40, h = 41.6
     val food = drawableToImageBitmap(dollarSign!!) // w = 20, h = 20
 
-    var currentFoodPosX by remember { mutableFloatStateOf(300f) }
-    var currentFoodPosY by remember { mutableFloatStateOf(900f) }
-
     var currentPlayerPosX by remember { mutableFloatStateOf(15f) }
     var currentPlayerPosY by remember { mutableFloatStateOf(15f) }
     var currentPlayerAngle by remember {mutableFloatStateOf ( 0F )}
-    val scoreCounter by remember {mutableStateOf ("")}
+    var scoreCounter by remember { mutableIntStateOf (0) }
+
+    var currentFoodPosX by remember { mutableFloatStateOf(Random.nextInt(100..800).toFloat()) }
+    var currentFoodPosY by remember { mutableFloatStateOf(Random.nextInt(100..800).toFloat()) }
+
+    val playerCenter = Pair((currentPlayerPosX + 56.25).toInt(), (currentPlayerPosY + 58.5).toInt())
+    val foodCenter = Pair((currentFoodPosX + 28.125).toInt(), (currentFoodPosY + 28.125).toInt())
 
     val canvasModifier = Modifier
         .fillMaxSize()
         .clip(shape = MaterialTheme.shapes.large)
-        .background(Color.Blue)
 
     Column(modifier = Modifier.fillMaxSize().background(Color.Black)){
-        ScoreCount(scoreCounter)
+        ScoreCount(scoreCounter.toString())
 /////////////////////////////////////////   CANVAS STARTS HERE  ////////////////////////////////
         Column(modifier = Modifier
             .fillMaxWidth()
@@ -83,14 +86,14 @@ fun GameScreen() {
                     val canvasWidth = size.width
                     val canvasHeight = size.height
 
-                    val foodXRange = 0..(canvasWidth - 120).toInt()
+                    val foodXRange = (0..(canvasWidth - 120).toInt() step 2).toList()
                     val foodYRange = 0..(canvasHeight - 120).toInt()
 
-                    val newFoodX = Random.nextInt(foodXRange)
-                    val newFoodY = Random.nextInt(foodYRange)
-
-                    if (currentPlayerPosX.toInt() == newFoodX) currentFoodPosX = Random.nextInt(foodXRange).toFloat()
-                    if (currentPlayerPosY.toInt() == newFoodY) currentFoodPosY = Random.nextInt(foodYRange).toFloat()
+                    if (playerCenter.first in foodCenter.first - 5..foodCenter.first + 5 && playerCenter.second in foodCenter.second - 5..foodCenter.second + 5){
+                        currentFoodPosX = foodXRange.random().toFloat()
+                        currentFoodPosY = foodYRange.random().toFloat()
+                        scoreCounter += 1
+                    }
 
                     if (currentPlayerPosY > canvasHeight) {
                         currentPlayerPosY = spawnPosY
@@ -98,10 +101,10 @@ fun GameScreen() {
                     if (currentPlayerPosX > canvasWidth) {
                         currentPlayerPosX = spawnPosX
                     }
-                    println("Player position = ${Pair(currentPlayerPosX, currentPlayerPosY)}")
-                    println("Food position = ${Pair(currentFoodPosX, currentFoodPosY)}")
-                    println("Player dimensions = $pacmanInPx in PX")
-                    println("Food dimensions = $foodInPx in PX")
+//                    println("Player position = ${Pair(currentPlayerPosX, currentPlayerPosY)}")
+//                    println("Food position = ${Pair(currentFoodPosX, currentFoodPosY)}")
+//                    println("Player Center = $playerCenter in PX")
+//                    println("Food Center = $foodCenter in PX")
 
                     drawImage(
                         image = food,
@@ -143,7 +146,7 @@ fun GameScreen() {
                         shape = MaterialTheme.shapes.large
                     )
                     .clip(shape = MaterialTheme.shapes.large)
-                    .background(Color.White),
+                    .background(Color.Gray),
                 verticalArrangement = Arrangement.Center){
 
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
