@@ -9,19 +9,5 @@ val arrowLeft = R.drawable.arrow_left
 val buttonSize = 90.dp
 
 const val movingSpeed = 2f
-const val movingSpeedX = 3f
-const val movingSpeedY = 2.375f
 const val spawnPosX = -50f
 const val spawnPosY = -50f
-
-//
-//fun floatRange(start: Float, endInclusive: Float, step: Float = 5.0f): List<Float> {
-//    require(step > 0) { "Step must be positive." }
-//    val range = mutableListOf<Float>()
-//    var current = start
-//    while (current <= endInclusive) {
-//        range.add(current)
-//        current += step
-//    }
-//    return range
-//}

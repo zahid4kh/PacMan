@@ -234,5 +234,3 @@ fun GameScreen() {
     ////////////////////////////////////  BUTTONS END HERE    //////////////////////
     }
 }
-
-//Canvas size = [912, 1520] in Int
