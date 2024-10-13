@@ -110,7 +110,7 @@ fun GameScreen() {
                         image = food,
                         topLeft = Offset(currentFoodPosX, currentFoodPosY)
                     )
-                    rotate(degrees = currentPlayerAngle, pivot = Offset((pacmanInPx.first/2), (pacmanInPx.second/2))){
+                    rotate(degrees = currentPlayerAngle, pivot = Offset((pacmanInPx.first/2), (pacmanInPx.second/2))){ // TODO (rotation)
                         drawImage(
                             image = player,
                             topLeft = Offset(currentPlayerPosX, currentPlayerPosY)
