@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,13 +67,16 @@ fun GameScreen() {
     var currentFoodPosY by remember { mutableFloatStateOf(Random.nextInt(100..800).toFloat()) }
 
     val playerCenter = Pair((currentPlayerPosX + 56.25).toInt(), (currentPlayerPosY + 58.5).toInt())
+    var playerScaleX by remember { mutableFloatStateOf(1f) }
     val foodCenter = Pair((currentFoodPosX + 28.125).toInt(), (currentFoodPosY + 28.125).toInt())
 
     val canvasModifier = Modifier
         .fillMaxSize()
         .clip(shape = MaterialTheme.shapes.large)
 
-    Column(modifier = Modifier.fillMaxSize().background(Color.Black)){
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Black)){
         ScoreCount(scoreCounter.toString())
 /////////////////////////////////////////   CANVAS STARTS HERE  ////////////////////////////////
         Column(modifier = Modifier
@@ -110,11 +114,15 @@ fun GameScreen() {
                         image = food,
                         topLeft = Offset(currentFoodPosX, currentFoodPosY)
                     )
-                    rotate(degrees = currentPlayerAngle, pivot = Offset((pacmanInPx.first/2), (pacmanInPx.second/2))){ // TODO (rotation)
-                        drawImage(
-                            image = player,
-                            topLeft = Offset(currentPlayerPosX, currentPlayerPosY)
-                        )
+                    // TODO (rotation)
+                    rotate(degrees = currentPlayerAngle, pivot = Offset((playerCenter.first.toFloat()), (playerCenter.second.toFloat()))){
+                        scale (scaleX = playerScaleX, scaleY = 1f, pivot = Offset((playerCenter.first.toFloat()), (playerCenter.second.toFloat()))){
+                            drawImage(
+                                image = player,
+                                topLeft = Offset(currentPlayerPosX, currentPlayerPosY)
+                            )
+                        }
+
                     }
 
                 }
@@ -127,10 +135,26 @@ fun GameScreen() {
         var goRight by rememberSaveable {mutableStateOf(false)}
 
         when (true) {
-            goUp ->  currentPlayerPosY -= movingSpeed
-            goDown ->  currentPlayerPosY += movingSpeed
-            goLeft -> currentPlayerPosX -= movingSpeed
-            goRight -> currentPlayerPosX += movingSpeed
+            goUp -> {
+                currentPlayerPosY -= movingSpeed
+                currentPlayerAngle = -90F
+                playerScaleX = 1f
+            }
+            goDown -> {
+                currentPlayerPosY += movingSpeed
+                currentPlayerAngle = 90F
+                playerScaleX = 1f
+            }
+            goLeft -> {
+                currentPlayerPosX -= movingSpeed
+                currentPlayerAngle = 0F
+                playerScaleX = -1f
+            }
+            goRight -> {
+                currentPlayerPosX += movingSpeed
+                currentPlayerAngle = 0F
+                playerScaleX = 1f
+            }
             else -> null
         }
 
